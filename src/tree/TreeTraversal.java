@@ -37,13 +37,7 @@ public class TreeTraversal {
                                    int position){
 
         switch (rootNode.type){
-            //Operands
-            case OPERAND_CONST:
-                return rootNode.value;
-            case OPERAND_ARRAY:
-                return array.getElement(rootNode.name, position);
-            case OPERAND_RAND:
-                return arrayRand.getElement(rootNode.name, position);
+
 
             //Operators
             case OPERATOR_DIV:
@@ -58,13 +52,19 @@ public class TreeTraversal {
             case OPERATOR_MINUS:
                 return calcTreeFromRoot(rootNode.left, array, arrayRand, position)
                         - calcTreeFromRoot(rootNode.right, array, arrayRand, position);
-        }
 
-        return 0.0;
+            //Operands
+            case OPERAND_ARRAY:
+                return array.getElement(rootNode.name, position);
+            case OPERAND_RAND:
+                return arrayRand.getElement(rootNode.name, position);
+            default:
+                return rootNode.value;
+        }
     }
 
     public static void main(String[] args) {
-        Infix2Postfix i2p = new Infix2Postfix();
+        /*Infix2Postfix i2p = new Infix2Postfix();
         System.out.println("Type in an expression like (1+2)*(3+4)/(12-5)\n "
                 + "with no monadic operators like in-5 or +5 followed by key");
         Scanner scan = new Scanner(System.in);
@@ -77,7 +77,7 @@ public class TreeTraversal {
 
         TreeTraversal tt = new TreeTraversal();
         double result = tt.calcTreeFromRoot(p2t.createTree(arrayStr));
-        System.out.println("Result: " + result);
+        System.out.println("Result: " + result);*/
     }
 
 }

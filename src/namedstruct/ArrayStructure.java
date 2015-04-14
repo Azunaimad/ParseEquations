@@ -38,6 +38,16 @@ public class ArrayStructure {
         return res;
     }
 
+    public double getElement(int arrayIndex, int position){
+        double res = Double.NaN;
+        try {
+            res = arrays[arrayIndex].getValue(position);
+        } catch (ArrayIndexOutOfBoundsException e){
+            e.printStackTrace();
+        }
+        return res;
+    }
+
     /**
      * Set element to named array
      * @param arrayName - array Name
@@ -49,6 +59,14 @@ public class ArrayStructure {
             for (Array component : arrays)
                 if (component.getName().equals(arrayName))
                     component.setValue(value, position);
+        } catch (ArrayIndexOutOfBoundsException e){
+            e.printStackTrace();
+        }
+    }
+
+    public void setElement(int arrayIndex, int position, double value){
+        try{
+            arrays[arrayIndex].setValue(value, position);
         } catch (ArrayIndexOutOfBoundsException e){
             e.printStackTrace();
         }
@@ -68,6 +86,11 @@ public class ArrayStructure {
             arrays = tmp;
         }
     }
+
+    public Array getArray(int arrayIndex){
+        return arrays[arrayIndex];
+    }
+
 
     public boolean exist(String name){
         boolean flag = false;

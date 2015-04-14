@@ -32,13 +32,17 @@ public class Postfix2Tree extends TreeNode {
                     stack.push(new TreeNode(TreeNodeType.OPERATOR_MULT,left,right));
                 if(s.equals("/"))
                     stack.push(new TreeNode(TreeNodeType.OPERATOR_DIV,left,right));
-                if(s.equals("="))
-                    stack.push(new TreeNode(TreeNodeType.OPERATOR_EQ,left,right));
             }
             //TODO: Добавить разбор на различные операнды
-            else
-                if(isNumeric(s))
+            else {
+                if (isNumeric(s))
                     stack.push(new TreeNode(Double.parseDouble(s)));
+                else if(s.contains("rand"))
+                    stack.push(new TreeNode(TreeNodeType.OPERAND_RAND,s));
+                else
+                    stack.push(new TreeNode(TreeNodeType.OPERAND_ARRAY,s));
+
+            }
         }
         return stack.pop();
     }
