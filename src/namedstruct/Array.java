@@ -1,4 +1,4 @@
-package namedarray;
+package namedstruct;
 
 
 /**
@@ -9,7 +9,7 @@ public class Array {
     private String name;
     private double[] value;
 
-    protected Array(String name, int nOfElements){
+    public Array(String name, int nOfElements){
         this.name = name;
         value = new double[nOfElements];
     }
@@ -19,7 +19,7 @@ public class Array {
      * @param val - value, which we want to set
      * @param position - position in array
      */
-    protected void setValue(double val, int position){
+    public void setValue(double val, int position){
         try{
             value[position] = val;
         } catch (ArrayIndexOutOfBoundsException aioobe){
@@ -32,7 +32,7 @@ public class Array {
      * @param position - position in array
      * @return - element value
      */
-    protected double getValue(int position){
+    public double getValue(int position){
         double res = Double.NaN;
         try{
             res = value[position];

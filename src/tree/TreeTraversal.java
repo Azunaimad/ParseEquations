@@ -1,7 +1,7 @@
 package tree;
 
 
-import namedarray.ArrayStructure;
+import namedstruct.ArrayStructure;
 
 import java.util.Scanner;
 

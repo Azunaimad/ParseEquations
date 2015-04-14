@@ -1,4 +1,4 @@
-package namedarray;
+package namedstruct;
 
 /**
  * Array of named arrays
@@ -7,11 +7,17 @@ package namedarray;
 public class ArrayStructure {
     private Array[] arrays;
 
-    public ArrayStructure(String[] name, int nOfElements, int nOfArrays) {
-        arrays = new Array[nOfArrays];
+    public ArrayStructure(String[] name, int nOfElements) {
+        arrays = new Array[name.length];
         for (int i=0; i< arrays.length; i++)
             arrays[i] = new Array(name[i], nOfElements);
     }
+
+    public ArrayStructure(Array[] arrays){
+        this.arrays = arrays;
+    }
+
+    public ArrayStructure(){}
 
     /**
      * get element from an named Array
@@ -46,5 +52,33 @@ public class ArrayStructure {
         } catch (ArrayIndexOutOfBoundsException e){
             e.printStackTrace();
         }
+    }
+
+    public void addArray(Array array){
+        if(arrays != null) {
+            Array[] tmp = new Array[arrays.length + 1];
+            System.arraycopy(arrays, 0, tmp, 0, tmp.length - 1);
+            tmp[tmp.length - 1] = array;
+
+            arrays = new Array[tmp.length];
+            arrays = tmp;
+        } else {
+            Array[] tmp = new Array[1];
+            tmp[0] = array;
+            arrays = tmp;
+        }
+    }
+
+    public boolean exist(String name){
+        boolean flag = false;
+        if(arrays != null)
+            for (Array array : arrays)
+                if (array.getName().equals(name))
+                    flag = true;
+        return flag;
+    }
+
+    public int length(){
+        return arrays.length;
     }
 }
