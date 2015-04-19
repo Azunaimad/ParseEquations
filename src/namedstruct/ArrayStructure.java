@@ -91,6 +91,10 @@ public class ArrayStructure {
         return arrays[arrayIndex];
     }
 
+    public String getName(int arrayIndex){
+        return arrays[arrayIndex].getName();
+    }
+
 
     public boolean exist(String name){
         boolean flag = false;

@@ -33,7 +33,6 @@ public class Postfix2Tree extends TreeNode {
                 if(s.equals("/"))
                     stack.push(new TreeNode(TreeNodeType.OPERATOR_DIV,left,right));
             }
-            //TODO: Добавить разбор на различные операнды
             else {
                 if (isNumeric(s))
                     stack.push(new TreeNode(Double.parseDouble(s)));

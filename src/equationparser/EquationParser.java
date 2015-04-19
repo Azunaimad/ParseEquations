@@ -5,7 +5,12 @@ import com.sun.org.apache.xpath.internal.SourceTree;
 import namedstruct.Array;
 import namedstruct.ArrayStructure;
 import namedstruct.ConstStructure;
+import tree.InToPost;
+import tree.Postfix2Tree;
+import tree.TreeNode;
+import tree.TreeTraversal;
 
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -29,7 +34,7 @@ public class EquationParser {
     private static String randRegExp = "rand\\(\\w+,\\w\\)";
     private static String arrayRegExp = "\\w+\\(\\w+[+-]\\d+\\)|\\w+\\(\\w+\\)";
 
-
+    //TODO: сделать так, чтобы было удобно работать с последовательностью действий detect -> setVal -> calculate
     public EquationParser(int nOfElements){
         this.nOfElements = nOfElements;
     }
@@ -62,20 +67,22 @@ public class EquationParser {
         }
         String[] inPar = (sb.toString().split(";|,"));
         String[] randArrayNames = new String[inPar.length/2];
-        for(int i=0; i<inPar.length; i+=2){
-            randArrayNames[i/2] = inPar[i];
-        }
+        if(inPar.length >= 2)
+            for(int i=0; i<inPar.length; i+=2){
+                randArrayNames[i/2] = "rand_"+inPar[i];
+            }
+
 
         //Create named rand array if it not exist
         for (String randArrayName : randArrayNames) {
             if(randArrays == null){
-                Array rAr = new Array("rand_"+randArrayName, nOfElements);
+                Array rAr = new Array(randArrayName, nOfElements);
                 randArrays = new ArrayStructure();
                 randArrays.addArray(rAr);
             }
             else
                 if (!randArrays.exist(randArrayName)) {
-                Array rAr = new Array("rand_"+randArrayName, nOfElements);
+                Array rAr = new Array(randArrayName, nOfElements);
                 randArrays.addArray(rAr);
             }
         }
@@ -202,19 +209,46 @@ public class EquationParser {
         this.nOfElements = nOfElements;
     }
 
-    public void calculate(String[] infixStr){
-        String[] rightPart = new String[infixStr.length];
-        String[] leftPart = new String[infixStr.length];
+    public void calculate(String[] infixStrArr){
+        String[] rightPart = new String[infixStrArr.length];
+        String[] leftPart = new String[infixStrArr.length];
 
-        for(String s : infixStr)
-            detectArrays(s);
 
-        for(int i=0; i<infixStr.length; i++) {
-            String[] temp = infixStr[i].split("=");
-            leftPart[i] = temp[0];
+
+        /*Scanner scanner = new Scanner(System.in);
+        for(int i=0; i<arrays.length(); i++){
+            System.out.println("Введите нулевое значение " + arrays.getArray(i).getName());
+            String s = scanner.next();
+            arrays.setElement(i,0,Double.parseDouble(s));
+        }*/
+
+
+        for(int i=0; i<infixStrArr.length; i++) {
+            String[] temp = infixStrArr[i].split("=");
+            leftPart[i] = temp[0].replaceAll("\\(.*\\)","");
             rightPart[i] = temp[1];
         }
 
+        TreeNode[] equations = new TreeNode[rightPart.length];
+        for(int i=0; i<rightPart.length; i++){
+            String renamed = renameForConversion(rightPart[i]);
+            InToPost itp = new InToPost(renamed);
+            String converted = itp.doTrans();
+            String[] splitted = splitForTree(converted,renamed);
+            Postfix2Tree p2t = new Postfix2Tree();
+            equations[i] = p2t.createTree(renameForTree(splitted));
+        }
+
+
+        fillRandArray();
+        TreeTraversal treeTraversal = new TreeTraversal();
+
+        for(int i=0; i<nOfElements-1; i++)
+            for(int j=0; j<equations.length; j++){
+                double result = treeTraversal.calcTreeFromRoot(equations[j],arrays,randArrays,i);
+                System.out.println(result);
+                arrays.setElement(leftPart[j],i+1,result);
+            }
     }
 
     public boolean isOperator(char s){
@@ -231,10 +265,18 @@ public class EquationParser {
         String s = scanner.next();
 
         EquationParser eq = new EquationParser(Integer.parseInt(s));
-
+        System.out.println("Введите уравнение");
         String equation = scanner.next();
-
-
+        String[] equations = new String[1];
+        equations[0] = equation;
+        eq.calculate(equations);
+        System.out.println(eq.arrays.getName(0) + "\t" + eq.randArrays.getName(0));
+        DecimalFormat numberFormat = new DecimalFormat("#0.00");
+        for(int i=0; i<eq.nOfElements; i++){
+            System.out.println(numberFormat.format(eq.arrays.getElement(0,i)) +
+                                "\t" +
+                                numberFormat.format(eq.randArrays.getElement(0,i)));
+        }
 
     }
 
