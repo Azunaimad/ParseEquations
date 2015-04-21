@@ -48,7 +48,7 @@ public class MainWindow extends JFrame {
     public JMenuBar createMenuBar(){
         fc=new JFileChooser();
 
-        JMenu menu = new JMenu("Меню");
+        JMenu menu = new JMenu("Файл");
         menuBar.add(menu);
 
         JMenuItem newModel = new JMenuItem("Новая модель");
@@ -156,11 +156,17 @@ public class MainWindow extends JFrame {
         String equationsStr = mainTabs[jTabbedPane.getSelectedIndex()].getEquations();
         String[] equationsArr = equationsStr.split("\n");
         EquationParser equationParser = new EquationParser(periods, iterations, randomGenerator);
-        for(String s : equationsArr)
+        for(String s : equationsArr){
             equationParser.detectArrays(s);
+            equationParser.detectConstants(s);
+        }
         equationParser.arrays.setElement(0,0,0,10);
+        equationParser.constants.setConstValue(0,5);
         equationParser.calculate(equationsArr);
-
+        for(int i=0; i<periods; i++)
+            System.out.println(equationParser.arrays.getArray(0).getValue(i,0));
+        for(int i=0; i<periods; i++)
+            System.out.println(equationParser.randArrays.getArray(0).getValue(i,0));
     }
 
     private void onOpen(){

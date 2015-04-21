@@ -4,6 +4,7 @@ package equationparser;
 import com.sun.org.apache.xpath.internal.SourceTree;
 import namedstruct.Array;
 import namedstruct.ArrayStructure;
+import namedstruct.Const;
 import namedstruct.ConstStructure;
 import tree.InToPost;
 import tree.Postfix2Tree;
@@ -22,7 +23,7 @@ public class EquationParser {
 
     public ArrayStructure arrays;
     public ArrayStructure randArrays;
-    private ConstStructure constants;
+    public ConstStructure constants;
     private Map<String, String> new_oldArrayNames;
     private Map<String, String> new_oldRandArrayNames;
 
@@ -82,10 +83,33 @@ public class EquationParser {
                 randArrays = new ArrayStructure();
                 randArrays.addArray(rAr);
             }
-            else
-                if (!randArrays.exist(randArrayName)) {
+            else if (!randArrays.exist(randArrayName)) {
                 Array rAr = new Array(randArrayName, nOfElements, nOfIterations);
                 randArrays.addArray(rAr);
+            }
+        }
+    }
+
+
+    public void detectConstants(String infixStr){
+        String[] tmp = infixStr.split("=");
+        infixStr = tmp[1].replaceAll("\\w+\\(\\w+\\)|rand\\(\\w+,\\w+\\)|\\d+","");
+        tmp = infixStr.split("[\\(\\)+/*-]");
+        StringBuilder sb = new StringBuilder();
+        for(String s : tmp)
+            if(!s.equals("")){
+                sb.append(s);
+                sb.append(";");
+            }
+        String[] constNames = sb.toString().split(";");
+        for (String constName : constNames) {
+            if (constants == null) {
+                Const c = new Const(constName);
+                constants = new ConstStructure();
+                constants.addConst(c);
+            } else if (!constants.exist(constName)) {
+                Const c = new Const(constName);
+                constants.addConst(c);
             }
         }
     }
@@ -158,7 +182,7 @@ public class EquationParser {
     public String[] renameForTree(String[] postfixStrArr){
         for(int i=0; i< postfixStrArr.length; i++){
             if(postfixStrArr[i].contains("arr"))
-                postfixStrArr[i] = new_oldArrayNames.get(postfixStrArr[i]);
+                postfixStrArr[i] = new_oldArrayNames.get(postfixStrArr[i])+"(t)";
             if(postfixStrArr[i].contains("rand"))
                 postfixStrArr[i] = new_oldRandArrayNames.get(postfixStrArr[i]);
         }
@@ -249,8 +273,7 @@ public class EquationParser {
         for(int k=0; k<nOfIterations; k++)
             for(int i=0; i<nOfElements-1; i++)
                 for(int j=0; j<equations.length; j++){
-                    double result = treeTraversal.calcTreeFromRoot(equations[j],arrays,randArrays,i,k);
-                    System.out.println(result);
+                    double result = treeTraversal.calcTreeFromRoot(equations[j],arrays,randArrays,constants, i,k);
                     arrays.setElement(leftPart[j],i+1,k,result);
                 }
     }

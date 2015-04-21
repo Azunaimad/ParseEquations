@@ -38,8 +38,10 @@ public class Postfix2Tree extends TreeNode {
                     stack.push(new TreeNode(Double.parseDouble(s)));
                 else if(s.contains("rand"))
                     stack.push(new TreeNode(TreeNodeType.OPERAND_RAND,s));
+                else if(s.contains("(") && s.contains(")"))
+                    stack.push(new TreeNode(TreeNodeType.OPERAND_ARRAY,s.substring(0,s.length()-3)));
                 else
-                    stack.push(new TreeNode(TreeNodeType.OPERAND_ARRAY,s));
+                    stack.push(new TreeNode(TreeNodeType.OPERAND_VAR,s));
 
             }
         }
