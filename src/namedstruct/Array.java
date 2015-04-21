@@ -7,11 +7,11 @@ package namedstruct;
  */
 public class Array {
     private String name;
-    private double[] value;
+    private double[][] value;
 
-    public Array(String name, int nOfElements){
+    public Array(String name, int nOfElements, int nOfIterations){
         this.name = name;
-        value = new double[nOfElements];
+        value = new double[nOfElements][nOfIterations];
     }
 
     /**
@@ -19,9 +19,9 @@ public class Array {
      * @param val - value, which we want to set
      * @param position - position in array
      */
-    public void setValue(double val, int position){
+    public void setValue(double val, int position, int iteration){
         try{
-            value[position] = val;
+            value[position][iteration] = val;
         } catch (ArrayIndexOutOfBoundsException aioobe){
             aioobe.printStackTrace();
         }
@@ -32,10 +32,10 @@ public class Array {
      * @param position - position in array
      * @return - element value
      */
-    public double getValue(int position){
+    public double getValue(int position, int iteration){
         double res = Double.NaN;
         try{
-            res = value[position];
+            res = value[position][iteration];
         } catch (ArrayIndexOutOfBoundsException aioobe){
             aioobe.printStackTrace();
         }

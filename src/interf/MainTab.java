@@ -9,13 +9,14 @@ import java.awt.*;
 public class MainTab extends JPanel {
     private JTextArea equationArea;
     private JTable dataTable;
+    private Font font = new Font("Verdana",Font.PLAIN,12);
 
     public MainTab(int rows, int columns, int dataTableWidth, int dataTableHeight,
                    int equationSPAreaWidth, int equationSPAreaHeight){
         super();
 
         equationArea = new JTextArea(rows,columns);
-
+        equationArea.setFont(font);
         dataTable = new JTable(0,0);
         dataTable.setSize(dataTableWidth, dataTableHeight);
 
@@ -36,5 +37,9 @@ public class MainTab extends JPanel {
 
     public String getEquations(){
         return equationArea.getText();
+    }
+    public void setEquations(String[] text){
+        for (String aText : text)
+            equationArea.append(aText + "\n");
     }
 }

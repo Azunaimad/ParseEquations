@@ -22,12 +22,12 @@ public class MainWindow extends JFrame {
     private SettingWindow settingWindow;
 
 
-    //Model parameters
+    //Model variables
     private int periods = 5;
     private int iterations = 1;
     private StepType step = StepType.Year;
     private RandomGeneratorType randomGenerator = RandomGeneratorType.Mersenne;
-    private EquationParser simulation;
+    private EquationParser[] simulation;
 
     //Window parameters
     public int windowWidth = 800;
@@ -48,10 +48,10 @@ public class MainWindow extends JFrame {
     public JMenuBar createMenuBar(){
         fc=new JFileChooser();
 
-        JMenu menu = new JMenu("Menu");
+        JMenu menu = new JMenu("Меню");
         menuBar.add(menu);
 
-        JMenuItem newModel = new JMenuItem("New Model");
+        JMenuItem newModel = new JMenuItem("Новая модель");
         newModel.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -60,7 +60,7 @@ public class MainWindow extends JFrame {
         });
         menu.add(newModel);
 
-        JMenuItem open = new JMenuItem("Open");
+        JMenuItem open = new JMenuItem("Открыть");
         open.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -73,7 +73,7 @@ public class MainWindow extends JFrame {
         });
         menu.add(open);
 
-        JMenuItem save = new JMenuItem("Save");
+        JMenuItem save = new JMenuItem("Сохранить как");
         save.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -89,9 +89,9 @@ public class MainWindow extends JFrame {
     }
 
     public JMenuBar createCalculateBar(){
-        JMenu menu = new JMenu("Calculate");
+        JMenu menu = new JMenu("Имитация");
         menuBar.add(menu);
-        JMenuItem calculate = new JMenuItem("Calculate");
+        JMenuItem calculate = new JMenuItem("Провести имитацию");
         calculate.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -99,23 +99,42 @@ public class MainWindow extends JFrame {
             }
         });
         menu.add(calculate);
+
+        JMenuItem detect = new JMenuItem("Распознать формулы");
+        detect.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                onDetect();
+            }
+        });
+        menu.add(detect);
+
         return menuBar;
     }
 
     public JMenuBar createSettingsBar(){
-        JMenu menu = new JMenu("Settings");
+        JMenu menu = new JMenu("Настройки");
         menuBar.add(menu);
-        JMenuItem settings = new JMenuItem("Settings");
+        JMenuItem settings = new JMenuItem("Настройки имитации");
         settings.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 onSettings();
                 periods = settingWindow.getPeriods();
                 iterations = settingWindow.getIterations();
+                step = settingWindow.getStepType();
+                randomGenerator = settingWindow.getRandomGeneratorType();
             }
         });
         menu.add(settings);
         return menuBar;
+    }
+
+    public void onDetect(){
+        EquationParser eq = new EquationParser(periods,iterations,randomGenerator);
+        String[] equations = mainTabs[jTabbedPane.getSelectedIndex()].getEquations().split("\n");
+        for(String equation : equations)
+            eq.detectArrays(equation);
     }
 
     private void onNewModel(){
@@ -128,31 +147,47 @@ public class MainWindow extends JFrame {
         System.arraycopy(tmp, 0, mainTabs, 0, mainTabs.length - 1);
         mainTabs[mainTabs.length-1] = newPanel;
         tabNumber++;
-        jTabbedPane.add(defaultTabName + tabNumber, newPanel);
+        jTabbedPane.addTab(defaultTabName + tabNumber, newPanel);
     }
 
+    //TODO: переписать
     private void onCalculate(){
+
         String equationsStr = mainTabs[jTabbedPane.getSelectedIndex()].getEquations();
         String[] equationsArr = equationsStr.split("\n");
-        EquationParser equationParser = new EquationParser(5);
+        EquationParser equationParser = new EquationParser(periods, iterations, randomGenerator);
         for(String s : equationsArr)
             equationParser.detectArrays(s);
-        equationParser.arrays.setElement(0,0,10);
+        equationParser.arrays.setElement(0,0,0,10);
         equationParser.calculate(equationsArr);
+
     }
 
     private void onOpen(){
-
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = br.readLine()) != null){
+                sb.append(line);
+                sb.append(";");
+            }
+            onNewModel();
+            mainTabs[mainTabs.length-1].setEquations(sb.toString().split(";"));
+            jTabbedPane.setSelectedIndex(mainTabs.length-1);
+            jTabbedPane.setTitleAt(jTabbedPane.getSelectedIndex(),file.getName());
+        } catch (FileNotFoundException e){
+            e.printStackTrace();
+        } catch (IOException e){
+            e.printStackTrace();
+        }
     }
 
     private void onSettings(){
-
         settingWindow = new SettingWindow(periods,iterations, randomGenerator,step);
         settingWindow.setSize(350,200);
         settingWindow.setFocusable(true);
         settingWindow.setVisible(true);
-
-
     }
 
     private void onSave(){
@@ -164,6 +199,8 @@ public class MainWindow extends JFrame {
                 pw.println(s);
             }
             pw.close();
+            jTabbedPane.setTitleAt(jTabbedPane.getSelectedIndex(),file.getName());
+
         } catch (IOException e){
             e.printStackTrace();
         }
@@ -186,9 +223,10 @@ public class MainWindow extends JFrame {
         return contentPane;
     }
 
-    public static void createAndShowGUI(){
-        JFrame frame = new JFrame("Contacts");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    public static void createAndShowGUI() throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
+        JFrame frame = new JFrame("Имитационнное моделирование");
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
         MainWindow mainWindow = new MainWindow();
         frame.setJMenuBar(mainWindow.createMenuBar());
@@ -207,7 +245,17 @@ public class MainWindow extends JFrame {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                createAndShowGUI();
+                try {
+                    createAndShowGUI();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                } catch (UnsupportedLookAndFeelException e) {
+                    e.printStackTrace();
+                } catch (InstantiationException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
             }
         });
 

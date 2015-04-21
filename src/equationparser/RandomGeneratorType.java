@@ -8,6 +8,8 @@ public enum RandomGeneratorType {
     Mersenne,
     JDKRandomGenerator,
     HalthonSequence,
-    SobolSequence
+    SobolSequence,
+    Well19937c,
+    Well44497b
 
 }

@@ -7,10 +7,10 @@ package namedstruct;
 public class ArrayStructure {
     private Array[] arrays;
 
-    public ArrayStructure(String[] name, int nOfElements) {
+    public ArrayStructure(String[] name, int nOfElements, int nOfIterations) {
         arrays = new Array[name.length];
         for (int i=0; i< arrays.length; i++)
-            arrays[i] = new Array(name[i], nOfElements);
+            arrays[i] = new Array(name[i], nOfElements, nOfIterations);
     }
 
     public ArrayStructure(Array[] arrays){
@@ -25,12 +25,12 @@ public class ArrayStructure {
      * @param position - position in array
      * @return element if exist
      */
-    public double getElement(String arrayName, int position){
+    public double getElement(String arrayName, int position, int iteration){
         double res = Double.NaN;
         try {
             for (Array component : arrays) {
                 if (component.getName().equals(arrayName))
-                    res = component.getValue(position);
+                    res = component.getValue(position,iteration);
             }
         } catch (ArrayIndexOutOfBoundsException e){
             e.printStackTrace();
@@ -38,10 +38,10 @@ public class ArrayStructure {
         return res;
     }
 
-    public double getElement(int arrayIndex, int position){
+    public double getElement(int arrayIndex, int position, int iteration){
         double res = Double.NaN;
         try {
-            res = arrays[arrayIndex].getValue(position);
+            res = arrays[arrayIndex].getValue(position, iteration);
         } catch (ArrayIndexOutOfBoundsException e){
             e.printStackTrace();
         }
@@ -54,19 +54,19 @@ public class ArrayStructure {
      * @param position - position in array
      * @param value - element, which we want to set
      */
-    public void setElement(String arrayName, int position, double value){
+    public void setElement(String arrayName, int position, int iteration, double value){
         try{
             for (Array component : arrays)
                 if (component.getName().equals(arrayName))
-                    component.setValue(value, position);
+                    component.setValue(value, position, iteration);
         } catch (ArrayIndexOutOfBoundsException e){
             e.printStackTrace();
         }
     }
 
-    public void setElement(int arrayIndex, int position, double value){
+    public void setElement(int arrayIndex, int position, int iteration, double value){
         try{
-            arrays[arrayIndex].setValue(value, position);
+            arrays[arrayIndex].setValue(value, position, iteration);
         } catch (ArrayIndexOutOfBoundsException e){
             e.printStackTrace();
         }
@@ -93,6 +93,14 @@ public class ArrayStructure {
 
     public String getName(int arrayIndex){
         return arrays[arrayIndex].getName();
+    }
+
+    public Array getArray(String name){
+        Array result = null;
+        for(Array a : arrays)
+            if(a.getName().equals(name))
+                result = a;
+        return result;
     }
 
 

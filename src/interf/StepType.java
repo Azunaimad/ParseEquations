@@ -7,5 +7,6 @@ public enum StepType {
     Year,
     Quarter,
     Month,
+    Week,
     Day
 }

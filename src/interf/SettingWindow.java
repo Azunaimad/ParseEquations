@@ -5,7 +5,6 @@ import equationparser.RandomGeneratorType;
 import javax.swing.*;
 import java.awt.event.*;
 
-//TODO: добавить возможность указать генератор и шаг, добавить геттеры
 public class SettingWindow extends JDialog {
     private JPanel contentPane;
     private JButton buttonSave;
@@ -20,6 +19,7 @@ public class SettingWindow extends JDialog {
     private RandomGeneratorType tmpRandomGenerator;
     private StepType tmpStep;
 
+
     public int getPeriods(){
         return (Integer) periods.getValue();
     }
@@ -28,14 +28,95 @@ public class SettingWindow extends JDialog {
         return (Integer) iterations.getValue();
     }
 
+    private void setStep(StepType stepType){
+        switch (stepType){
+            case Year:
+                step.setSelectedIndex(0);
+                break;
+            case Quarter:
+                step.setSelectedIndex(1);
+                break;
+            case Month:
+                step.setSelectedIndex(2);
+                break;
+            case Week:
+                step.setSelectedIndex(3);
+                break;
+            case Day:
+                step.setSelectedIndex(4);
+                break;
+        }
+    }
+
+    private void setRandomGenerator(RandomGeneratorType generatorType){
+        switch (generatorType){
+            case Mersenne:
+                randomGenerator.setSelectedIndex(0);
+                break;
+            case JDKRandomGenerator:
+                randomGenerator.setSelectedIndex(1);
+                break;
+            case HalthonSequence:
+                randomGenerator.setSelectedIndex(2);
+                break;
+            case SobolSequence:
+                randomGenerator.setSelectedIndex(3);
+                break;
+            case Well19937c:
+                randomGenerator.setSelectedIndex(4);
+                break;
+            case Well44497b:
+                randomGenerator.setSelectedIndex(5);
+                break;
+        }
+    }
+
+    public StepType getStepType(){
+        switch (step.getSelectedIndex()){
+            case 0:
+                return StepType.Year;
+            case 1:
+                return StepType.Quarter;
+            case 2:
+                return StepType.Month;
+            case 3:
+                return StepType.Week;
+            case 4:
+                return StepType.Day;
+            default:
+                return StepType.Year;
+        }
+    }
+
+    public RandomGeneratorType getRandomGeneratorType(){
+        switch (randomGenerator.getSelectedIndex()){
+            case 0:
+                return RandomGeneratorType.Mersenne;
+            case 1:
+                return RandomGeneratorType.JDKRandomGenerator;
+            case 2:
+                return RandomGeneratorType.HalthonSequence;
+            case 3:
+                return RandomGeneratorType.SobolSequence;
+            case 4:
+                return RandomGeneratorType.Well19937c;
+            case 5:
+                return RandomGeneratorType.Well44497b;
+            default:
+                return RandomGeneratorType.Mersenne;
+        }
+    }
+
     public SettingWindow(int periodsVal, int iterationsVal,
                          RandomGeneratorType generatorType, StepType stepType) {
+
         this.periods.setValue(periodsVal);
         this.iterations.setValue(iterationsVal);
+        setStep(stepType);
+        setRandomGenerator(generatorType);
 
         tmpPeriods = periodsVal;
         tmpIterations = iterationsVal;
-
         tmpRandomGenerator = generatorType;
         tmpStep = stepType;
 
@@ -83,7 +164,8 @@ public class SettingWindow extends JDialog {
 // add your code here if necessary
         this.periods.setValue(tmpPeriods);
         this.iterations.setValue(tmpIterations);
-
+        setRandomGenerator(tmpRandomGenerator);
+        setStep(tmpStep);
         dispose();
     }
 

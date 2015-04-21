@@ -35,15 +35,17 @@ public class EquationParser {
     private static String arrayRegExp = "\\w+\\(\\w+[+-]\\d+\\)|\\w+\\(\\w+\\)";
 
     //TODO: сделать так, чтобы было удобно работать с последовательностью действий detect -> setVal -> calculate
-    public EquationParser(int nOfElements){
+    public EquationParser(int nOfElements, int nOfIterations, RandomGeneratorType generator){
         this.nOfElements = nOfElements;
+        this.nOfIterations = nOfIterations;
+        this.generator = generator;
     }
 
     public void detectArrays(String infixStr){
         /// Detect parameter, that we want to model in this equation
         String[] tmp = infixStr.split("=");
         String arrayName = tmp[0].replaceAll("\\(.*\\)", "");
-        Array array = new Array(arrayName, nOfElements);
+        Array array = new Array(arrayName, nOfElements, nOfIterations);
         if(arrays == null)
             arrays = new ArrayStructure();
         arrays.addArray(array);
@@ -76,13 +78,13 @@ public class EquationParser {
         //Create named rand array if it not exist
         for (String randArrayName : randArrayNames) {
             if(randArrays == null){
-                Array rAr = new Array(randArrayName, nOfElements);
+                Array rAr = new Array(randArrayName, nOfElements, nOfIterations);
                 randArrays = new ArrayStructure();
                 randArrays.addArray(rAr);
             }
             else
                 if (!randArrays.exist(randArrayName)) {
-                Array rAr = new Array(randArrayName, nOfElements);
+                Array rAr = new Array(randArrayName, nOfElements, nOfIterations);
                 randArrays.addArray(rAr);
             }
         }
@@ -93,10 +95,11 @@ public class EquationParser {
         try{
             Random randomGenerator = new Random();
             for(int i=0; i<randArrays.length(); i++)
-                for(int j=0; j<nOfElements; j++){
-                    double rnd = randomGenerator.nextGaussian();
-                    randArrays.setElement(i, j, rnd);
-            }
+                for(int j=0; j<nOfElements; j++)
+                    for(int k=0; k<nOfIterations; k++){
+                        double rnd = randomGenerator.nextGaussian();
+                        randArrays.setElement(i, j, k, rnd);
+                    }
         } catch (NullPointerException e){
             e.printStackTrace();
         }
@@ -243,12 +246,13 @@ public class EquationParser {
         fillRandArray();
         TreeTraversal treeTraversal = new TreeTraversal();
 
-        for(int i=0; i<nOfElements-1; i++)
-            for(int j=0; j<equations.length; j++){
-                double result = treeTraversal.calcTreeFromRoot(equations[j],arrays,randArrays,i);
-                System.out.println(result);
-                arrays.setElement(leftPart[j],i+1,result);
-            }
+        for(int k=0; k<nOfIterations; k++)
+            for(int i=0; i<nOfElements-1; i++)
+                for(int j=0; j<equations.length; j++){
+                    double result = treeTraversal.calcTreeFromRoot(equations[j],arrays,randArrays,i,k);
+                    System.out.println(result);
+                    arrays.setElement(leftPart[j],i+1,k,result);
+                }
     }
 
     public boolean isOperator(char s){
@@ -258,27 +262,6 @@ public class EquationParser {
                 s == '/';
     }
 
-
-    public static void main(String[] args) {
-        System.out.println("Введите количество периодов");
-        Scanner scanner = new Scanner(System.in);
-        String s = scanner.next();
-
-        EquationParser eq = new EquationParser(Integer.parseInt(s));
-        System.out.println("Введите уравнение");
-        String equation = scanner.next();
-        String[] equations = new String[1];
-        equations[0] = equation;
-        eq.calculate(equations);
-        System.out.println(eq.arrays.getName(0) + "\t" + eq.randArrays.getName(0));
-        DecimalFormat numberFormat = new DecimalFormat("#0.00");
-        for(int i=0; i<eq.nOfElements; i++){
-            System.out.println(numberFormat.format(eq.arrays.getElement(0,i)) +
-                                "\t" +
-                                numberFormat.format(eq.randArrays.getElement(0,i)));
-        }
-
-    }
 
 }
 

@@ -1,6 +1,7 @@
 package tree;
 
 import equationparser.EquationParser;
+import equationparser.RandomGeneratorType;
 
 /**
  * Created by Azunai on 14.04.2015.
@@ -133,7 +134,7 @@ public class InToPost {
 
         System.out.println(expr);
         System.out.println(test2);
-        EquationParser eq = new EquationParser(10);
+        EquationParser eq = new EquationParser(10,1, RandomGeneratorType.JDKRandomGenerator);
         String[] splitted = eq.splitForTree(test2, expr);
         for(String s : splitted)
             System.out.println(s);
