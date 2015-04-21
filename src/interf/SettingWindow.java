@@ -56,7 +56,7 @@ public class SettingWindow extends JDialog {
             case JDKRandomGenerator:
                 randomGenerator.setSelectedIndex(1);
                 break;
-            case HalthonSequence:
+            case HaltonSequence:
                 randomGenerator.setSelectedIndex(2);
                 break;
             case SobolSequence:
@@ -95,7 +95,7 @@ public class SettingWindow extends JDialog {
             case 1:
                 return RandomGeneratorType.JDKRandomGenerator;
             case 2:
-                return RandomGeneratorType.HalthonSequence;
+                return RandomGeneratorType.HaltonSequence;
             case 3:
                 return RandomGeneratorType.SobolSequence;
             case 4:

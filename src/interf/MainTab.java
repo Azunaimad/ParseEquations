@@ -1,6 +1,13 @@
 package interf;
 
+import javafx.geometry.VerticalDirection;
+
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
+import javax.swing.plaf.metal.MetalBorders;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import java.awt.*;
 
 /**
@@ -10,10 +17,64 @@ public class MainTab extends JPanel {
     private JTextArea equationArea;
     private JTable dataTable;
     private Font font = new Font("Verdana",Font.PLAIN,12);
+    private JPanel arrayParamPanel;
 
+    private JTable paramTable;
+    private JTable arrayTable;
+
+    private int paramTableWidth = 240;
+    private int paramTableHeight = 237;
+    private int arrayTableWidth = 240;
+    private int arrayTableHeight = 237;
     public MainTab(int rows, int columns, int dataTableWidth, int dataTableHeight,
                    int equationSPAreaWidth, int equationSPAreaHeight){
         super();
+
+
+        arrayParamPanel = new JPanel();
+        arrayParamPanel.setSize(400,400);
+        paramTable = new JTable(new interf.TableModel());
+        paramTable.setSize(paramTableWidth, paramTableHeight);
+        /*efaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+        paramTable.getTableHeader().setDefaultRenderer(centerRenderer);*/
+
+
+        JScrollPane pSP = new JScrollPane(paramTable,
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        pSP.setPreferredSize(new Dimension(paramTableWidth, paramTableHeight));
+        pSP.setLayout(new ScrollPaneLayout());
+
+
+
+
+
+        arrayTable = new JTable(new interf.TableModel());
+        arrayTable.setSize(arrayTableWidth, arrayTableHeight);
+        JScrollPane aSP = new JScrollPane(arrayTable,
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        aSP.setPreferredSize(new Dimension(arrayTableWidth, arrayTableHeight));
+        aSP.setLayout(new ScrollPaneLayout());
+
+
+        GroupLayout groupLayout = new GroupLayout(arrayParamPanel);
+        groupLayout.setAutoCreateGaps(true);
+        groupLayout.setAutoCreateContainerGaps(true);
+        groupLayout.setHorizontalGroup(
+                groupLayout.createSequentialGroup()
+                        .addGroup(groupLayout.createParallelGroup()
+                                .addComponent(aSP)
+                                .addComponent(pSP))
+        );
+        groupLayout.setVerticalGroup(
+                groupLayout.createSequentialGroup()
+                .addComponent(aSP)
+                .addComponent(pSP)
+        );
+
+        arrayParamPanel.setLayout(groupLayout);
 
         equationArea = new JTextArea(rows,columns);
         equationArea.setFont(font);
@@ -31,6 +92,7 @@ public class MainTab extends JPanel {
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         dataSP.setPreferredSize(new Dimension(dataTableWidth,dataTableHeight));
 
+        add(arrayParamPanel);
         add(eqSP, BorderLayout.CENTER);
         add(dataSP);
     }

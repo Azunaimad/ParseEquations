@@ -1,21 +1,18 @@
 package equationparser;
 
 
-import com.sun.org.apache.xpath.internal.SourceTree;
 import namedstruct.Array;
 import namedstruct.ArrayStructure;
 import namedstruct.Const;
 import namedstruct.ConstStructure;
+import org.apache.commons.math3.random.*;
 import tree.InToPost;
 import tree.Postfix2Tree;
 import tree.TreeNode;
 import tree.TreeTraversal;
 
-import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
-import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -117,13 +114,41 @@ public class EquationParser {
     //TODO:упрощенная версия, переписать для разных генераторов
     public void fillRandArray(){
         try{
-            Random randomGenerator = new Random();
-            for(int i=0; i<randArrays.length(); i++)
-                for(int j=0; j<nOfElements; j++)
-                    for(int k=0; k<nOfIterations; k++){
-                        double rnd = randomGenerator.nextGaussian();
-                        randArrays.setElement(i, j, k, rnd);
-                    }
+            RandomGenerator rg = null;
+            RandomVectorGenerator rvg = null;
+            switch (generator){
+                case Mersenne:
+                    rg = new MersenneTwister();
+                    break;
+                case JDKRandomGenerator:
+                    rg = new JDKRandomGenerator();
+                    break;
+                case Well19937c:
+                    rg = new Well19937c();
+                    break;
+                case Well44497b:
+                    rg = new Well44497b();
+                    break;
+                case SobolSequence:
+                    rvg = new SobolSequenceGenerator(1);
+                    break;
+                case HaltonSequence:
+                    rvg = new HaltonSequenceGenerator(1);
+            }
+
+            if(rg != null){
+                for(int i=0; i<randArrays.length(); i++)
+                    for(int j=0; j<nOfElements; j++)
+                        for(int k=0; k<nOfIterations; k++)
+                            randArrays.setElement(i, j, k, rg.nextGaussian());
+            }
+
+            if(rvg != null){
+                for(int i=0; i<randArrays.length(); i++)
+                    for(int j=0; j<nOfElements; j++)
+                        for(int k=0; k<nOfIterations; k++)
+                            randArrays.setElement(i, j, k, rvg.nextVector()[0]);
+            }
         } catch (NullPointerException e){
             e.printStackTrace();
         }

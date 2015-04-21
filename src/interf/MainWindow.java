@@ -30,7 +30,7 @@ public class MainWindow extends JFrame {
     private EquationParser[] simulation;
 
     //Window parameters
-    public int windowWidth = 800;
+    public int windowWidth = 1000;
     public int windowHeight = 600;
 
     private int equationSPAreaWidth = 320;
