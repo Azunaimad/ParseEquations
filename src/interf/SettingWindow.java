@@ -109,6 +109,7 @@ public class SettingWindow extends JDialog {
 
     public SettingWindow(int periodsVal, int iterationsVal,
                          RandomGeneratorType generatorType, StepType stepType) {
+        setTitle("Настройки имитации");
 
         this.periods.setValue(periodsVal);
         this.iterations.setValue(iterationsVal);

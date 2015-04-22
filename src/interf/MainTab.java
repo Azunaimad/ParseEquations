@@ -21,6 +21,8 @@ public class MainTab extends JPanel {
 
     private JTable paramTable;
     private JTable arrayTable;
+    public interf.TableModel paramModel = new interf.TableModel();
+    public interf.TableModel arrayModel = new interf.TableModel();
 
     private int paramTableWidth = 240;
     private int paramTableHeight = 237;
@@ -33,12 +35,10 @@ public class MainTab extends JPanel {
 
         arrayParamPanel = new JPanel();
         arrayParamPanel.setSize(400,400);
-        paramTable = new JTable(new interf.TableModel());
+        paramTable = new JTable(paramModel);
         paramTable.setSize(paramTableWidth, paramTableHeight);
-        /*efaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-        paramTable.getTableHeader().setDefaultRenderer(centerRenderer);*/
-
+        paramTable.getColumnModel().getColumn(0).setMaxWidth(40);
+        paramTable.getColumnModel().getColumn(2).setMaxWidth(100);
 
         JScrollPane pSP = new JScrollPane(paramTable,
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -46,12 +46,11 @@ public class MainTab extends JPanel {
         pSP.setPreferredSize(new Dimension(paramTableWidth, paramTableHeight));
         pSP.setLayout(new ScrollPaneLayout());
 
-
-
-
-
-        arrayTable = new JTable(new interf.TableModel());
+        arrayTable = new JTable(arrayModel);
         arrayTable.setSize(arrayTableWidth, arrayTableHeight);
+        arrayTable.getColumnModel().getColumn(0).setMaxWidth(40);
+        arrayTable.getColumnModel().getColumn(2).setMaxWidth(100);
+
         JScrollPane aSP = new JScrollPane(arrayTable,
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -104,4 +103,25 @@ public class MainTab extends JPanel {
         for (String aText : text)
             equationArea.append(aText + "\n");
     }
+
+   /* public Object[][] getParams(){
+        return paramModel.getData();
+    }
+
+    public void setParams(Object[][] obj){
+        paramModel.setData(obj);
+    }
+
+    public Object[][] getArrays(){
+        return arrayModel.getData();
+    }
+
+    public void setArrays(Object[][] obj){
+        arrayModel.setData(obj);
+    }
+
+    public void addParamsRow(Object[] obj){
+        paramModel.addRow(obj);
+    }*/
+
 }

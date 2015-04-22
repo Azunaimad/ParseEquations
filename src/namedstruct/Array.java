@@ -49,4 +49,11 @@ public class Array {
     public String getName(){
         return name;
     }
+
+    public int getNOfElements(){
+        return value.length;
+    }
+    public int getNOfIterations(){
+        return value[0].length;
+    }
 }

@@ -2,6 +2,7 @@ package interf;
 
 import equationparser.EquationParser;
 import equationparser.RandomGeneratorType;
+import org.jfree.ui.RefineryUtilities;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,6 +21,8 @@ public class MainWindow extends JFrame {
     private JMenuBar menuBar = new JMenuBar();
     private MainTab[] mainTabs;
     private SettingWindow settingWindow;
+    private JMenu chartMenu;
+    private JMenuItem calculate;
 
 
     //Model variables
@@ -27,7 +30,7 @@ public class MainWindow extends JFrame {
     private int iterations = 1;
     private StepType step = StepType.Year;
     private RandomGeneratorType randomGenerator = RandomGeneratorType.Mersenne;
-    private EquationParser[] simulation;
+    private EquationParser simulation;
 
     //Window parameters
     public int windowWidth = 1000;
@@ -91,7 +94,7 @@ public class MainWindow extends JFrame {
     public JMenuBar createCalculateBar(){
         JMenu menu = new JMenu("Имитация");
         menuBar.add(menu);
-        JMenuItem calculate = new JMenuItem("Провести имитацию");
+        calculate = new JMenuItem("Провести имитацию");
         calculate.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -99,6 +102,7 @@ public class MainWindow extends JFrame {
             }
         });
         menu.add(calculate);
+        calculate.setEnabled(false);
 
         JMenuItem detect = new JMenuItem("Распознать формулы");
         detect.addActionListener(new ActionListener() {
@@ -108,12 +112,6 @@ public class MainWindow extends JFrame {
             }
         });
         menu.add(detect);
-
-        return menuBar;
-    }
-
-    public JMenuBar createSettingsBar(){
-        JMenu menu = new JMenu("Настройки");
         menuBar.add(menu);
         JMenuItem settings = new JMenuItem("Настройки имитации");
         settings.addActionListener(new ActionListener() {
@@ -124,17 +122,75 @@ public class MainWindow extends JFrame {
                 iterations = settingWindow.getIterations();
                 step = settingWindow.getStepType();
                 randomGenerator = settingWindow.getRandomGeneratorType();
+                //TODO: исправить костыль. Блочит "Провести имитацию". Добавить методы set для всех параметров,
+                //TODO: и сделать так, чтобы правильно собиралась задача.
+                calculate.setEnabled(false);
             }
         });
         menu.add(settings);
+
         return menuBar;
     }
 
+
+    public JMenuBar createChartBar(){
+        chartMenu = new JMenu("Графики");
+        menuBar.add(chartMenu);
+        JMenuItem lineChart = new JMenuItem("График по периодам");
+        lineChart.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                onLineChart();
+            }
+        });
+        chartMenu.add(lineChart);
+        chartMenu.setEnabled(false);
+        return menuBar;
+    }
+
+    public void onLineChart(){
+        LineChartDialog dialog = new LineChartDialog(simulation.arrays,
+                mainTabs[jTabbedPane.getSelectedIndex()].arrayModel.getData());
+        dialog.pack();
+        RefineryUtilities.centerFrameOnScreen(dialog);
+        dialog.setVisible(true);
+    }
+
+    //TODO: исправить баг, который заключается в том, что появляется пустая строка в таблице, элементов которой нет
     public void onDetect(){
-        EquationParser eq = new EquationParser(periods,iterations,randomGenerator);
+        simulation = new EquationParser(periods,iterations,randomGenerator);
         String[] equations = mainTabs[jTabbedPane.getSelectedIndex()].getEquations().split("\n");
-        for(String equation : equations)
-            eq.detectArrays(equation);
+        for(String equation : equations) {
+            simulation.detectArrays(equation);
+            simulation.detectConstants(equation);
+        }
+
+        int rowCount = mainTabs[jTabbedPane.getSelectedIndex()].arrayModel.getRowCount();
+        for(int i=rowCount -1 ; i>=0; i--)
+            mainTabs[jTabbedPane.getSelectedIndex()].arrayModel.removeRow(i);
+
+        Object[] arraysObj = new Object[3];
+        for(int i=0; i<simulation.arrays.length(); i++){
+            arraysObj[0] = simulation.arrays.getName(i);
+            arraysObj[1] = "";
+            arraysObj[2] = 0.0;
+            mainTabs[jTabbedPane.getSelectedIndex()].arrayModel.addRow(arraysObj);
+        }
+
+        rowCount = mainTabs[jTabbedPane.getSelectedIndex()].paramModel.getRowCount();
+        for(int i=rowCount - 1 ; i>=0; i--)
+            mainTabs[jTabbedPane.getSelectedIndex()].paramModel.removeRow(i);
+
+        arraysObj = new Object[3];
+        for(int i=0; i < simulation.constants.length(); i++){
+            arraysObj[0] = simulation.constants.getName(i);
+            arraysObj[1] = "";
+            arraysObj[2] = 0.0;
+            mainTabs[jTabbedPane.getSelectedIndex()].paramModel.addRow(arraysObj);
+        }
+
+        calculate.setEnabled(true);
+
     }
 
     private void onNewModel(){
@@ -155,18 +211,27 @@ public class MainWindow extends JFrame {
 
         String equationsStr = mainTabs[jTabbedPane.getSelectedIndex()].getEquations();
         String[] equationsArr = equationsStr.split("\n");
-        EquationParser equationParser = new EquationParser(periods, iterations, randomGenerator);
-        for(String s : equationsArr){
-            equationParser.detectArrays(s);
-            equationParser.detectConstants(s);
+        for(int j=0; j<simulation.arrays.length(); j++)
+            for (int i = 0; i < iterations; i++){
+                String name = simulation.arrays.getName(j);
+                double value = mainTabs[jTabbedPane.getSelectedIndex()].arrayModel.getValue(name);
+                simulation.arrays.setElement(name,0,i,value);
+            }
+        for(int j=0; j<simulation.constants.length(); j++) {
+            String name = simulation.constants.getName(j);
+            double value = mainTabs[jTabbedPane.getSelectedIndex()].arrayModel.getValue(name);
+            simulation.constants.setConstValue(name,value);
         }
-        equationParser.arrays.setElement(0,0,0,10);
-        equationParser.constants.setConstValue(0,5);
-        equationParser.calculate(equationsArr);
+
+        simulation.calculate(equationsArr);
         for(int i=0; i<periods; i++)
-            System.out.println(equationParser.arrays.getArray(0).getValue(i,0));
+            System.out.println(simulation.arrays.getArray(0).getValue(i,0));
         for(int i=0; i<periods; i++)
-            System.out.println(equationParser.randArrays.getArray(0).getValue(i,0));
+            System.out.println(simulation.randArrays.getArray(0).getValue(i,0));
+
+        chartMenu.setEnabled(true);
+
+
     }
 
     private void onOpen(){
@@ -193,6 +258,7 @@ public class MainWindow extends JFrame {
         settingWindow = new SettingWindow(periods,iterations, randomGenerator,step);
         settingWindow.setSize(350,200);
         settingWindow.setFocusable(true);
+        RefineryUtilities.centerFrameOnScreen(settingWindow);
         settingWindow.setVisible(true);
     }
 
@@ -237,7 +303,7 @@ public class MainWindow extends JFrame {
         MainWindow mainWindow = new MainWindow();
         frame.setJMenuBar(mainWindow.createMenuBar());
         frame.setJMenuBar(mainWindow.createCalculateBar());
-        frame.setJMenuBar(mainWindow.createSettingsBar());
+        frame.setJMenuBar(mainWindow.createChartBar());
 
         mainWindow.jPanel = mainWindow.createContentPane();
         frame.setContentPane(mainWindow.jPanel);
