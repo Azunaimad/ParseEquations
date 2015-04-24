@@ -83,6 +83,9 @@ public class MainTab extends JPanel {
         JScrollPane eqSP = new JScrollPane(equationArea,
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+        TextLineNumber tln = new TextLineNumber(equationArea);
+        eqSP.setRowHeaderView(tln);
         eqSP.setPreferredSize(new Dimension(equationSPAreaWidth, equationSPAreaHeight));
         eqSP.setLayout(new ScrollPaneLayout());
 

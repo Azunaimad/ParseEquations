@@ -36,7 +36,7 @@ public class MainWindow extends JFrame {
     public int windowWidth = 1000;
     public int windowHeight = 600;
 
-    private int equationSPAreaWidth = 320;
+    private int equationSPAreaWidth = 350;
     private int equationSPAreaHeight = 480;
 
     private int nOfColumns = 20;
