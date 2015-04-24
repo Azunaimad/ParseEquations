@@ -1,7 +1,6 @@
 package interf;
 
 import java.awt.*;
-import java.awt.event.*;
 import java.beans.*;
 import java.util.HashMap;
 import javax.swing.*;
@@ -76,7 +75,7 @@ public class TextLineNumber extends JPanel
 
         setBorderGap( 5 );
         setCurrentLineForeground( Color.RED );
-        setDigitAlignment( RIGHT );
+        setDigitAlignment( CENTER );
         setMinimumDisplayDigits( minimumDisplayDigits );
 
         component.getDocument().addDocumentListener(this);
@@ -282,10 +281,7 @@ public class TextLineNumber extends JPanel
         int caretPosition = component.getCaretPosition();
         Element root = component.getDocument().getDefaultRootElement();
 
-        if (root.getElementIndex( rowStartOffset ) == root.getElementIndex(caretPosition))
-            return true;
-        else
-            return false;
+        return root.getElementIndex(rowStartOffset) == root.getElementIndex(caretPosition);
     }
 
     /*

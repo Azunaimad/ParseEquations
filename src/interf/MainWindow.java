@@ -149,8 +149,28 @@ public class MainWindow extends JFrame {
     }
 
     public void onLineChart(){
+        String xLabel;
+        switch (step){
+            case Month:
+                xLabel = "Месяц";
+                break;
+            case Quarter:
+                xLabel = "Квартал";
+                break;
+            case Week:
+                xLabel = "Неделя";
+                break;
+            case Day:
+                xLabel = "День";
+                break;
+            default:
+                xLabel = "Год";
+        }
+
+
         LineChartDialog dialog = new LineChartDialog(simulation.arrays,
-                mainTabs[jTabbedPane.getSelectedIndex()].arrayModel.getData());
+                mainTabs[jTabbedPane.getSelectedIndex()].arrayModel,
+                xLabel);
         dialog.pack();
         RefineryUtilities.centerFrameOnScreen(dialog);
         dialog.setVisible(true);
@@ -215,15 +235,18 @@ public class MainWindow extends JFrame {
             for (int i = 0; i < iterations; i++){
                 String name = simulation.arrays.getName(j);
                 double value = mainTabs[jTabbedPane.getSelectedIndex()].arrayModel.getValue(name);
+                System.out.println(value);
                 simulation.arrays.setElement(name,0,i,value);
             }
         for(int j=0; j<simulation.constants.length(); j++) {
             String name = simulation.constants.getName(j);
-            double value = mainTabs[jTabbedPane.getSelectedIndex()].arrayModel.getValue(name);
+            double value = mainTabs[jTabbedPane.getSelectedIndex()].paramModel.getValue(name);
             simulation.constants.setConstValue(name,value);
         }
 
         simulation.calculate(equationsArr);
+
+
         for(int i=0; i<periods; i++)
             System.out.println(simulation.arrays.getArray(0).getValue(i,0));
         for(int i=0; i<periods; i++)
@@ -332,5 +355,4 @@ public class MainWindow extends JFrame {
         });
 
     }
-
 }
