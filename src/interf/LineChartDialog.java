@@ -75,6 +75,8 @@ public class LineChartDialog extends JDialog {
         plotArray = arrays.getArray(comboBox1.getSelectedIndex());
         yLabel = arrayModel.getDefinition(arrays.getName(comboBox1.getSelectedIndex()));
 
+        ImitationData dialog = new ImitationData(plotArray);
+
         PlotLineChart chart = new PlotLineChart(textField1.getText(),
                                                 plotArray,
                                                 (Integer) start.getValue(),
@@ -86,6 +88,11 @@ public class LineChartDialog extends JDialog {
         chart.pack();
         RefineryUtilities.centerFrameOnScreen(chart);
         chart.setVisible(true);
+
+        dialog.pack();
+        RefineryUtilities.centerFrameOnScreen(dialog);
+        dialog.setVisible(true);
+
         dispose();
     }
 

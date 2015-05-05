@@ -15,7 +15,7 @@ import java.awt.*;
  */
 public class MainTab extends JPanel {
     private JTextArea equationArea;
-    private JTable dataTable;
+    public JTable dataTable;
     private Font font = new Font("Verdana",Font.PLAIN,12);
     private JPanel arrayParamPanel;
 

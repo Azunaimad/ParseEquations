@@ -2,18 +2,29 @@ package interf;
 
 import equationparser.EquationParser;
 import equationparser.RandomGeneratorType;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.jfree.ui.RefineryUtilities;
 
 import javax.swing.*;
+import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Arc2D;
 import java.io.*;
+import java.util.Iterator;
+import java.util.Vector;
 
 public class MainWindow extends JFrame {
 
     //Window Components
-    private JFileChooser fc;
+    private JFileChooser fc=new JFileChooser();
     private File file;
 
     private JPanel jPanel;
@@ -23,6 +34,9 @@ public class MainWindow extends JFrame {
     private SettingWindow settingWindow;
     private JMenu chartMenu;
     private JMenuItem calculate;
+    private JMenuItem data;
+    private JMenuItem optimize;
+    private JComboBox[] realDataHeaderNames;
 
 
     //Model variables
@@ -49,7 +63,6 @@ public class MainWindow extends JFrame {
     String defaultTabName = "Untitled";
 
     public JMenuBar createMenuBar(){
-        fc=new JFileChooser();
 
         JMenu menu = new JMenu("Файл");
         menuBar.add(menu);
@@ -83,6 +96,7 @@ public class MainWindow extends JFrame {
                 int returnVal = fc.showSaveDialog(MainWindow.this);
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     file = fc.getSelectedFile();
+
                     onSave();
                 }
             }
@@ -112,7 +126,17 @@ public class MainWindow extends JFrame {
             }
         });
         menu.add(detect);
-        menuBar.add(menu);
+
+        optimize = new JMenuItem("Найти параметры модели");
+        optimize.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                onOptimize();
+            }
+        });
+        optimize.setEnabled(false);
+        menu.add(optimize);
+
         JMenuItem settings = new JMenuItem("Настройки имитации");
         settings.addActionListener(new ActionListener() {
             @Override
@@ -128,6 +152,20 @@ public class MainWindow extends JFrame {
             }
         });
         menu.add(settings);
+
+        data = new JMenuItem("Фактические распределения");
+        data.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int returnVal = fc.showOpenDialog(MainWindow.this);
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    file = fc.getSelectedFile();
+                    onOpenData();
+                }
+            }
+        });
+        menu.add(data);
+        data.setEnabled(false);
 
         return menuBar;
     }
@@ -147,6 +185,89 @@ public class MainWindow extends JFrame {
         chartMenu.setEnabled(false);
         return menuBar;
     }
+
+    //TODO: реализовать поиск параметров с помощью генетического алгоритма
+    public void onOptimize(){
+
+    }
+
+    public void onOpenData(){
+        try {
+            FileInputStream fis = new FileInputStream(file);
+            HSSFWorkbook workbook = new HSSFWorkbook(fis);
+            String[] sheetNames = new String[workbook.getNumberOfSheets()];
+            for(int i=0; i<workbook.getNumberOfSheets(); i++)
+                sheetNames[i] = workbook.getSheetName(i);
+            ExcelData excelData = new ExcelData(sheetNames);
+            excelData.pack();
+            RefineryUtilities.centerFrameOnScreen(excelData);
+            excelData.setVisible(true);
+
+
+            HSSFSheet sheet = workbook.getSheet(excelData.sheetName);
+            int rowCounter=1;
+
+            int rowNum = sheet.getLastRowNum()+1;
+            int colNum = sheet.getRow(0).getLastCellNum();
+            Object[][] realData = new Object[rowNum][colNum];
+            for(int i=0; i<rowNum; i++) {
+                if (excelData.rowNumber > rowCounter) {
+                    rowCounter++;
+                } else {
+                    HSSFRow row = sheet.getRow(i);
+                    for (int j = 0; j < colNum; j++) {
+                        HSSFCell cell = row.getCell(j);
+                        switch (cell.getCellType()) {
+                            case Cell.CELL_TYPE_NUMERIC:
+                                realData[i][j] = cell.getNumericCellValue();
+                                break;
+                            case Cell.CELL_TYPE_STRING:
+                                realData[i][j] = cell.getStringCellValue();
+                                break;
+                        }
+                    }
+                }
+            }
+            DefaultTableModel model = new DefaultTableModel(realData[0],0);
+            mainTabs[jTabbedPane.getSelectedIndex()].dataTable.setModel(model);
+            for(int i=1; i<realData.length; i++)
+                model.addRow(realData[i]);
+
+            fis.close();
+            workbook.close();
+            optimize.setEnabled(true);
+            /*realDataHeaderNames = new JComboBox[maxRowLength];
+            for(int i=0; i<realDataHeaderNames.length; i++){
+                realDataHeaderNames[i] = new JComboBox();
+                for(int j=0; j<simulation.arrays.length(); j++){
+                    realDataHeaderNames[i].addItem(simulation.arrays.getName(j));
+                    System.out.println(simulation.arrays.getName(j));
+                }
+            }
+            TableColumnModel tcm = mainTabs[jTabbedPane.getSelectedIndex()].dataTable.getColumnModel();
+            for(int i=0; i<maxRowLength; i++){
+                TableColumn tc = new TableColumn();
+                tcm.addColumn(tc);
+            }
+            mainTabs[jTabbedPane.getSelectedIndex()].dataTable.setTableHeader(new EditableHeader(tcm));
+            for(int i=0; i<maxRowLength; i++){
+                EditableHeaderTableColumn col;
+                col = (EditableHeaderTableColumn) mainTabs[jTabbedPane.getSelectedIndex()].dataTable
+                        .getColumnModel().getColumn(i);
+                col.setHeaderValue(realDataHeaderNames[i].getItemAt(0));
+                col.setHeaderEditor(new DefaultCellEditor(realDataHeaderNames[i]));
+            }
+
+            DefaultTableModel model = (DefaultTableModel) mainTabs[jTabbedPane.getSelectedIndex()].dataTable.getModel();
+            System.out.println(realData.length);
+            model.addRow(realData[0]);*/
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public void onLineChart(){
         String xLabel;
@@ -210,6 +331,7 @@ public class MainWindow extends JFrame {
         }
 
         calculate.setEnabled(true);
+        data.setEnabled(true);
 
     }
 
@@ -320,7 +442,7 @@ public class MainWindow extends JFrame {
 
     public static void createAndShowGUI() throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
         JFrame frame = new JFrame("Имитационнное моделирование");
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
         MainWindow mainWindow = new MainWindow();

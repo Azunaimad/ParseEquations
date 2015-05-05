@@ -122,7 +122,7 @@ public class SettingWindow extends JDialog {
         tmpStep = stepType;
 
         periods.setModel(new SpinnerNumberModel(periodsVal,2,256,1));
-        iterations.setModel(new SpinnerNumberModel(iterationsVal,1,10000,1));
+        iterations.setModel(new SpinnerNumberModel(iterationsVal,1,30000,1));
 
         setContentPane(contentPane);
         setModal(true);

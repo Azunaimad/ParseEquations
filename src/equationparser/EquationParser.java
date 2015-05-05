@@ -159,7 +159,7 @@ public class EquationParser {
         String[] newArrayNames = new String[arrays.length()];
         for(int i=0; i<arrays.length(); i++)
             newArrayNames[i] = "arr"+i+"arr";
-        String[] newRandArrayNames = new String[randArrays.length()];
+        String[] newRandArrayNames = new String[randArrays.length()]; //Баг: если нет randarray, то не работает
         for(int i=0; i<randArrays.length(); i++)
             newRandArrayNames[i] = "rand"+i+"rand";
 
