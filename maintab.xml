@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<maintab>
+    <constants>
+        <name>Name</name>
+        <description>Constant Description</description>
+        <value>Value</value>
+    </constants>
+    <arrays>
+        <name>Name</name>
+        <description>Index Description</description>
+    </arrays>
+    <real-data>
+        <time>Time</time>
+    </real-data>
+</maintab>

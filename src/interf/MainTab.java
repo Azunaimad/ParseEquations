@@ -36,6 +36,7 @@ public class MainTab extends JPanel {
         arrayParamPanel = new JPanel();
         arrayParamPanel.setSize(400,400);
         paramTable = new JTable(paramModel);
+
         paramTable.setSize(paramTableWidth, paramTableHeight);
         paramTable.getColumnModel().getColumn(0).setMaxWidth(40);
         paramTable.getColumnModel().getColumn(2).setMaxWidth(100);
@@ -61,6 +62,7 @@ public class MainTab extends JPanel {
         GroupLayout groupLayout = new GroupLayout(arrayParamPanel);
         groupLayout.setAutoCreateGaps(true);
         groupLayout.setAutoCreateContainerGaps(true);
+
         groupLayout.setHorizontalGroup(
                 groupLayout.createSequentialGroup()
                         .addGroup(groupLayout.createParallelGroup()
